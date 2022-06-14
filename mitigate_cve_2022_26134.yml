@@ -1,0 +1,47 @@
+---
+  - name: Mitigate CVE 2022-26134
+    hosts: localhost
+    connection: local
+    vars_files:
+      - ./vars/main.yml
+    tasks:
+      - name: Stop Confluence
+        shell: "./confluence stop"
+      - name: Make webwork dir
+        file:
+          path: /tmp/webwork/setup
+          state: directory
+          mode: '0655'
+          owner: "{{confluence_user}}"
+          group: "{{confluence_group}}"
+      - name: Move xwork-1.0.3.6.jar to /tmp/archive
+        command: mv /tmp/xwork-1.0.3.6.jar /tmp/archive
+        args:
+          removes: /tmp/xwork-1.0.3.6.jar
+      - name: Move webwork-2.1.5-atlassian-3.jar to /tmp/archive
+        command: mv /tmp/webwork-2.1.5-atlassian-3.jar /tmp/archive
+        args:
+          removes: /tmp/webwork-2.1.5-atlassian-3.jar
+      - name: Download xwork-1.0.3-atlassian-10.jar
+        get_url:
+          url: http://ipv4.download.thinkbroadband.com/10MB.zip
+          dest: /tmp/xwork-1.0.3-atlassian-10.jar
+          mode: '0644'
+          owner: "{{confluence_user}}"
+          group: "{{confluence_group}}"
+      - name: Download webwork-2.1.5-atlassian-4.jar
+        get_url:
+          url: http://ipv4.download.thinkbroadband.com/10MB.zip
+          dest: /tmp/webwork-2.1.5-atlassian-4.jar
+          mode: '0644'
+          owner: "{{confluence_user}}"
+          group: "{{confluence_group}}"
+      - name: Download CachedConfigurationProvider.class
+        get_url:
+          url: http://ipv4.download.thinkbroadband.com/10MB.zip
+          dest: /tmp/webwork/setup/CachedConfigurationProvider.class
+          mode: '0644'
+          owner: "{{confluence_user}}"
+          group: "{{confluence_group}}"
+      - name: Start Confluence
+        shell: "./confluence start"
